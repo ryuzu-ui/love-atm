@@ -1,0 +1,50 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    Arial,
+    sans-serif;
+
+  background-color: var(--cream);
+
+  background-image:
+    linear-gradient(
+      rgba(38, 50, 56, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(38, 50, 56, 0.035) 1px,
+      transparent 1px
+    );
+
+  background-size: 32px 32px;
+
+  color: var(--black);
+}
+
+button {
+  font: inherit;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 3px;
+}
+
+.love-atm {
+  min-height: 100vh;
+  width: 100%;
+}

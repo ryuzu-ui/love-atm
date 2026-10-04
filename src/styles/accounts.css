@@ -1,0 +1,185 @@
+.account-screen {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+}
+
+.account-card {
+  width: min(500px, 100%);
+
+  background: var(--white);
+
+  border: var(--border);
+  border-radius: var(--radius);
+
+  box-shadow: var(--shadow);
+
+  padding: 30px;
+}
+
+.account-header {
+  text-align: center;
+
+  margin-bottom: 28px;
+}
+
+.account-header h1 {
+  margin: 18px 0 8px;
+
+  font-size: clamp(30px, 7vw, 42px);
+  font-weight: 1000;
+
+  letter-spacing: -2px;
+}
+
+.account-header p:last-child {
+  margin: 0;
+
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+.account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.account-button {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  padding: 18px;
+
+  border: var(--border);
+  border-radius: 14px;
+
+  color: var(--black);
+
+  cursor: pointer;
+
+  text-align: left;
+
+  box-shadow: 6px 6px 0 var(--black);
+
+  transition:
+    transform 0.1s,
+    box-shadow 0.1s;
+}
+
+.account-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--black);
+}
+
+.account-button:active {
+  transform: translate(5px, 5px);
+  box-shadow: 1px 1px 0 var(--black);
+}
+
+.account-button.blue {
+  background: var(--ivan-blue);
+}
+
+.account-button.yellow {
+  background: var(--sam-yellow);
+}
+
+.account-icon {
+  width: 58px;
+  height: 58px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--white);
+
+  border: 3px solid var(--black);
+  border-radius: 50%;
+
+  font-size: 25px;
+}
+
+.account-info {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.account-info strong {
+  font-size: 24px;
+  font-weight: 1000;
+}
+
+.account-info span {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.account-arrow {
+  font-size: 30px;
+  font-weight: 1000;
+}
+
+.back-button {
+  width: 100%;
+
+  margin-top: 28px;
+
+  padding: 14px;
+
+  border: 3px solid var(--black);
+  border-radius: 10px;
+
+  background: var(--white);
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background: var(--cream);
+}
+
+@media (max-width: 480px) {
+  .account-card {
+    padding: 22px;
+  }
+
+  .account-button {
+    padding: 14px;
+  }
+
+  .account-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .account-info strong {
+    font-size: 20px;
+  }
+}
+
+.account-button.blue {
+  background: var(--ivan-blue);
+}
+
+.account-button.yellow {
+  background: var(--sam-yellow);
+}

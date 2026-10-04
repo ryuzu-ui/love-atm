@@ -1,0 +1,20 @@
+:root {
+  --cream: #fffdf7;
+  --white: #ffffff;
+  --black: #263238;
+
+  /* Ivan */
+  --ivan-blue: #a9d8f5;
+  --ivan-blue-light: #dff2ff;
+  --ivan-blue-dark: #78bce3;
+
+  /* Sam */
+  --sam-yellow: #ffe7a3;
+  --sam-yellow-light: #fff6d8;
+  --sam-yellow-dark: #f3ca67;
+
+  --shadow: 5px 5px 0 var(--black);
+  --border: 3px solid var(--black);
+
+  --radius: 22px;
+}
