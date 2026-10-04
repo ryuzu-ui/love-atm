@@ -4,6 +4,8 @@ import WelcomeScreen from "../components/WelcomeScreen";
 import AccountSelection from "../components/AccountSelection";
 import PinScreen from "../components/PinScreen";
 import Dashboard from "../components/Dashboard";
+import { useEffect } from "react";
+import { supabase } from "../lib/supabase";
 
 import "../styles/variables.css";
 import "../styles/global.css";
@@ -39,6 +41,24 @@ function LoveATM() {
     setSelectedAccount(null);
     setScreen("welcome");
   };
+
+  useEffect(() => {
+  const testSupabase = async () => {
+    const { error } = await supabase
+      .from("love_transactions")
+      .select("id")
+      .limit(1);
+
+    if (error) {
+      console.error("SUPABASE CONNECTION ERROR:", error);
+      return;
+    }
+
+    console.log("SUPABASE CONNECTED SUCCESSFULLY!");
+  };
+
+  testSupabase();
+}, []);
 
   return (
     <main className="love-atm">

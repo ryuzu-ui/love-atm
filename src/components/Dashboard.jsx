@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Header from "./Header";
 import LoveActionModal from "./LoveActionModal";
+
+import {
+  createTransaction,
+  getTransactions,
+} from "../utils/transactions";
 
 import "../styles/dashboard.css";
 
@@ -27,28 +32,104 @@ function Dashboard({
   const [transactions, setTransactions] =
     useState([]);
 
+  const [loadingHistory, setLoadingHistory] =
+    useState(true);
+
+  const [transactionError, setTransactionError] =
+    useState("");
+
+  const [showHistory, setShowHistory] =
+    useState(false);
+
+  // ============================================================
+  // LOAD INCOMING LOVE HISTORY
+  // ============================================================
+
+  useEffect(() => {
+    const loadTransactions = async () => {
+      try {
+        setLoadingHistory(true);
+        setTransactionError("");
+
+        const data = await getTransactions(
+          account.id
+        );
+
+        setTransactions(data);
+      } catch (error) {
+        console.error(error);
+
+        setTransactionError(
+          "Unable to load love history."
+        );
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+
+    loadTransactions();
+  }, [account.id]);
+
+  // ============================================================
+  // LOVE ACTION
+  // ============================================================
+
   const handleLoveAction = (action) => {
     setActiveAction(action);
   };
 
-  const handleTransaction = (transaction) => {
-    const newTransaction = {
-      id: Date.now(),
-      sender: account.name,
-      receiver: receiver.name,
-      type: transaction.type,
-      amount: transaction.amount,
-      message: transaction.message,
-      createdAt: new Date().toISOString(),
-    };
+  // ============================================================
+  // SAVE TRANSACTION
+  // ============================================================
 
-    setTransactions((current) => [
-      newTransaction,
-      ...current,
-    ]);
+  const handleTransaction = async (
+    transaction
+  ) => {
+    try {
+      setTransactionError("");
 
-    setActiveAction(null);
+      const savedTransaction =
+        await createTransaction({
+          senderId: account.id,
+          receiverId: receiver.id,
+          type: transaction.type,
+          amount: transaction.amount,
+          message: transaction.message,
+        });
+
+      /*
+       * This transaction was SENT by the current
+       * account, so don't add it to the current
+       * account's incoming history.
+       *
+       * It will appear in the receiver's history
+       * when they log in.
+       */
+
+      setActiveAction(null);
+
+      /*
+       * Small success state.
+       * We don't need to display the sent
+       * transaction in incoming history.
+       */
+
+      console.log(
+        "LOVE SENT:",
+        savedTransaction
+      );
+    } catch (error) {
+      console.error(error);
+
+      setTransactionError(
+        "Unable to send love. Please try again."
+      );
+    }
   };
+
+  // ============================================================
+  // DISPLAY HELPERS
+  // ============================================================
 
   const getTransactionIcon = (type) => {
     if (type === "kisses") return "💋";
@@ -68,6 +149,41 @@ function Dashboard({
     return "Love";
   };
 
+  const formatDate = (date) => {
+    if (!date) {
+      return "";
+    }
+
+    return new Date(date).toLocaleString(
+      "en-PH",
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      }
+    );
+  };
+
+  const formatShortDate = (date) => {
+    if (!date) {
+      return "";
+    }
+
+    return new Date(date).toLocaleDateString(
+      "en-PH",
+      {
+        month: "short",
+        day: "numeric",
+      }
+    );
+  };
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+
   return (
     <section
       className={`dashboard-screen ${
@@ -84,6 +200,10 @@ function Dashboard({
         />
 
         <div className="dashboard-content">
+
+          {/* ==================================================
+              WELCOME
+          ================================================== */}
 
           <div className="welcome-dashboard">
             <div>
@@ -105,11 +225,20 @@ function Dashboard({
             </div>
           </div>
 
+          {/* ==================================================
+              LOVE BALANCE
+          ================================================== */}
+
           <div className="love-balance">
 
             <div className="balance-top">
-              <span>LOVE BALANCE</span>
-              <span>♡</span>
+              <span>
+                LOVE BALANCE
+              </span>
+
+              <span>
+                ♡
+              </span>
             </div>
 
             <div className="balance-number">
@@ -121,6 +250,10 @@ function Dashboard({
             </div>
 
           </div>
+
+          {/* ==================================================
+              ACTIONS
+          ================================================== */}
 
           <div className="action-grid">
 
@@ -136,8 +269,13 @@ function Dashboard({
               </span>
 
               <div>
-                <strong>Send Kisses</strong>
-                <small>Give some kisses</small>
+                <strong>
+                  Send Kisses
+                </strong>
+
+                <small>
+                  Give some kisses
+                </small>
               </div>
 
               <span className="action-arrow">
@@ -157,8 +295,13 @@ function Dashboard({
               </span>
 
               <div>
-                <strong>Send Hugs</strong>
-                <small>Send a warm hug</small>
+                <strong>
+                  Send Hugs
+                </strong>
+
+                <small>
+                  Send a warm hug
+                </small>
               </div>
 
               <span className="action-arrow">
@@ -178,8 +321,13 @@ function Dashboard({
               </span>
 
               <div>
-                <strong>Love Points</strong>
-                <small>Send some love</small>
+                <strong>
+                  Love Points
+                </strong>
+
+                <small>
+                  Send some love
+                </small>
               </div>
 
               <span className="action-arrow">
@@ -199,8 +347,13 @@ function Dashboard({
               </span>
 
               <div>
-                <strong>Love Letter</strong>
-                <small>Write something sweet</small>
+                <strong>
+                  Love Letter
+                </strong>
+
+                <small>
+                  Write something sweet
+                </small>
               </div>
 
               <span className="action-arrow">
@@ -210,21 +363,47 @@ function Dashboard({
 
           </div>
 
+          {/* ==================================================
+              ERROR
+          ================================================== */}
+
+          {transactionError && (
+            <div className="transaction-error">
+              {transactionError}
+            </div>
+          )}
+
+          {/* ==================================================
+              RECENT LOVE
+          ================================================== */}
+
           <div className="dashboard-section">
 
             <div className="section-heading">
+
               <div>
                 <span className="small-label">
-                  RECENT ACTIVITY
+                  RECEIVED LOVE
                 </span>
 
                 <h2>
-                  Love Transactions
+                  From {receiver.name}
                 </h2>
               </div>
+
+              <button
+                className="history-button"
+                type="button"
+                onClick={() =>
+                  setShowHistory(true)
+                }
+              >
+                VIEW HISTORY
+              </button>
+
             </div>
 
-            {transactions.length === 0 ? (
+            {loadingHistory ? (
               <div className="empty-transactions">
 
                 <div className="empty-icon">
@@ -232,23 +411,42 @@ function Dashboard({
                 </div>
 
                 <strong>
-                  No love transactions yet
+                  Loading love...
                 </strong>
 
                 <p>
-                  Your cute moments will appear here.
+                  Getting your memories.
+                </p>
+
+              </div>
+            ) : transactions.length === 0 ? (
+              <div className="empty-transactions">
+
+                <div className="empty-icon">
+                  ♡
+                </div>
+
+                <strong>
+                  No love received yet
+                </strong>
+
+                <p>
+                  Your first cute moment will
+                  appear here.
                 </p>
 
               </div>
             ) : (
               <div className="transaction-list">
 
-                {transactions.map(
-                  (transaction) => (
+                {transactions
+                  .slice(0, 3)
+                  .map((transaction) => (
                     <div
                       className="transaction-card"
                       key={transaction.id}
                     >
+
                       <div className="transaction-icon">
                         {getTransactionIcon(
                           transaction.type
@@ -256,6 +454,7 @@ function Dashboard({
                       </div>
 
                       <div className="transaction-info">
+
                         <strong>
                           {getTransactionName(
                             transaction.type
@@ -263,7 +462,8 @@ function Dashboard({
                         </strong>
 
                         <span>
-                          To {transaction.receiver}
+                          From{" "}
+                          {transaction.sender_id.toUpperCase()}
                         </span>
 
                         {transaction.message && (
@@ -271,6 +471,13 @@ function Dashboard({
                             "{transaction.message}"
                           </p>
                         )}
+
+                        <small className="transaction-date">
+                          {formatShortDate(
+                            transaction.created_at
+                          )}
+                        </small>
+
                       </div>
 
                       {transaction.amount > 0 && (
@@ -278,18 +485,23 @@ function Dashboard({
                           +{transaction.amount}
                         </strong>
                       )}
+
                     </div>
-                  )
-                )}
+                  ))}
 
               </div>
             )}
 
           </div>
 
+          {/* ==================================================
+              LOVE EMERGENCY
+          ================================================== */}
+
           <div className="dashboard-section">
 
             <div className="section-heading">
+
               <div>
                 <span className="small-label">
                   SPECIAL
@@ -299,6 +511,7 @@ function Dashboard({
                   Love Emergency
                 </h2>
               </div>
+
             </div>
 
             <button
@@ -313,6 +526,7 @@ function Dashboard({
               </span>
 
               <div>
+
                 <strong>
                   I NEED LOVE
                 </strong>
@@ -320,26 +534,171 @@ function Dashboard({
                 <p>
                   Send an instant love emergency.
                 </p>
+
               </div>
 
               <span className="action-arrow">
                 →
               </span>
+
             </button>
 
           </div>
 
         </div>
-
       </div>
+
+      {/* ======================================================
+          SEND LOVE MODAL
+      ====================================================== */}
 
       {activeAction && (
         <LoveActionModal
           action={activeAction}
           receiver={receiver}
-          onClose={() => setActiveAction(null)}
+          onClose={() =>
+            setActiveAction(null)
+          }
           onSubmit={handleTransaction}
         />
+      )}
+
+      {/* ======================================================
+          HISTORY MODAL
+      ====================================================== */}
+
+      {showHistory && (
+        <div
+          className="history-modal-overlay"
+          onClick={() =>
+            setShowHistory(false)
+          }
+        >
+          <div
+            className={`history-modal ${
+              isIvan
+                ? "history-modal-ivan"
+                : "history-modal-sam"
+            }`}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+
+            <button
+              className="history-modal-close"
+              type="button"
+              onClick={() =>
+                setShowHistory(false)
+              }
+            >
+              ×
+            </button>
+
+            <div className="history-modal-icon">
+              ♡
+            </div>
+
+            <span className="small-label">
+              LOVE ARCHIVE
+            </span>
+
+            <h2>
+              Your Love History
+            </h2>
+
+            <p className="history-modal-subtitle">
+              Every little bit of love from{" "}
+              {receiver.name}.
+            </p>
+
+            <div className="history-modal-list">
+
+              {transactions.length === 0 ? (
+                <div className="history-empty">
+                  <div>
+                    ♡
+                  </div>
+
+                  <strong>
+                    Nothing here yet.
+                  </strong>
+
+                  <p>
+                    Your love story is still
+                    waiting for its first entry.
+                  </p>
+                </div>
+              ) : (
+                transactions.map(
+                  (transaction) => (
+                    <div
+                      className="history-item"
+                      key={transaction.id}
+                    >
+
+                      <div className="history-item-icon">
+                        {getTransactionIcon(
+                          transaction.type
+                        )}
+                      </div>
+
+                      <div className="history-item-content">
+
+                        <div className="history-item-top">
+
+                          <strong>
+                            {getTransactionName(
+                              transaction.type
+                            )}
+                          </strong>
+
+                          {transaction.amount > 0 && (
+                            <span>
+                              +{transaction.amount}
+                            </span>
+                          )}
+
+                        </div>
+
+                        <small>
+                          From{" "}
+                          {transaction.sender_id.toUpperCase()}
+                        </small>
+
+                        {transaction.message && (
+                          <p>
+                            "{transaction.message}"
+                          </p>
+                        )}
+
+                        <time>
+                          {formatDate(
+                            transaction.created_at
+                          )}
+                        </time>
+
+                      </div>
+
+                    </div>
+                  )
+                )
+              )}
+
+            </div>
+
+            <button
+              className="history-done-button"
+              type="button"
+              onClick={() =>
+                setShowHistory(false)
+              }
+            >
+              CLOSE HISTORY
+            </button>
+
+          </div>
+        </div>
       )}
 
     </section>
